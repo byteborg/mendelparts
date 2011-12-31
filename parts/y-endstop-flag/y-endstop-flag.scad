@@ -2,7 +2,7 @@
 
 SCREWD=3.2; // for M3 screws
 
-$fn=50;
+$fn=16;
 difference() {
 	union() {
 		cube([10,25,3]);
