@@ -35,10 +35,10 @@ difference() {
         }
     }
     rotate([0, 90, 0]) {
-        translate([0, -LEN/2+THICK/2, 0]) {
+        translate([0, -LEN/2+THICK/1.33, 0]) {
             cylinder(r=SCREWD/2, h=XDIM*2, center=true);
         }
-        translate([0, LEN/2-THICK/2, 0]) {
+        translate([0, LEN/2-THICK/1.33, 0]) {
             cylinder(r=SCREWD/2, h=XDIM*2, center=true);
         }
     }
