@@ -1,4 +1,6 @@
 // byteborg's direct drive extruder 0.1
+// License: CC NC-BY-SA 3.0
+// "parts that don't exist can't break"
 
 include <MCAD/constants.scad>
 include <MCAD/motors.scad>
@@ -49,7 +51,7 @@ q=.001;
 // plate
 %ruler();
 main();
-// translate([BASE_X+S_ROUND, -S_ROUND, 0]) rotate([0, -90, -60-90]) pressure();
+translate([BASE_X+S_ROUND, -S_ROUND, 0]) rotate([0, -90, -60-90]) pressure();
 
 // pressure for visualization
 %translate([BASE_X/2-P_X/2, NEMA_DIM/2+NEMA_BOLT_DIST/2, NEMA_DIM/2+BASE_THICK+NEMA_BOLT_DIST/2]) pressure(1);
