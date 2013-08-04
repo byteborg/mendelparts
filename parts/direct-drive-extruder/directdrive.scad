@@ -1,8 +1,9 @@
 // byteborg's direct drive extruder 0.1
 
-include <MCAD/constants.scad>;
-include <MCAD/motors.scad>;
-include <MCAD/nuts_and_bolts.scad>;
+include <MCAD/constants.scad>
+include <MCAD/motors.scad>
+include <MCAD/nuts_and_bolts.scad>
+use <ruler.scad>
 
 FILAMENT = 3;  // 3mm filament
 
@@ -11,7 +12,7 @@ CANAL_DIA = (FILAMENT+1);
 NEMA_BOLT_DIST = 1.220*mm_per_inch;
 NEMA_BOLT_DIA = 3.6;
 NEMA_PILOT_DIA = 0.866*mm_per_inch;
-NEMA_DIM = NEMA_BOLT_DIST + NEMA_BOLT_DIA + 5; // see motors.scad
+NEMA_DIM = NEMA_BOLT_DIST + NEMA_BOLT_DIA + 5 + 4; // see motors.scad, too small
 MOUNT_THICK = 5;
 
 BASE_X = 70;
@@ -46,8 +47,9 @@ S_ROUND = (NEMA_DIM-NEMA_BOLT_DIST); // final shape corner rounding radius
 q=.001;
 
 // plate
+%ruler();
 main();
-translate([BASE_X+S_ROUND, -S_ROUND, 0]) rotate([0, -90, -60-90]) pressure();
+// translate([BASE_X+S_ROUND, -S_ROUND, 0]) rotate([0, -90, -60-90]) pressure();
 
 // pressure for visualization
 %translate([BASE_X/2-P_X/2, NEMA_DIM/2+NEMA_BOLT_DIST/2, NEMA_DIM/2+BASE_THICK+NEMA_BOLT_DIST/2]) pressure(1);
@@ -58,13 +60,13 @@ module main() {
         union () {
             base();
             translate([BASE_X/2-10, BASE_Y/2, NEMA_DIM/2+BASE_THICK]) {
-                %rotate([0, 90, 0]) stepper();
+                //%rotate([0, 90, 0]) stepper();
                 motor_mount();
             }
         }
         translate([0, FEED_OFFSET, 0]) {
             // hotend mount
-            translate([BASE_X/2, BASE_Y/2, BASE_THICK]) rotate([180, 0, 0])
+            translate([BASE_X/2, BASE_Y/2, BASE_THICK+1]) rotate([180, 0, 0])
                 peek_reprapsource_holes();
             // filament canal
             translate([BASE_X/2, BASE_Y/2, 0]) {
@@ -74,6 +76,9 @@ module main() {
         }
         shape_x();
         shape_z();
+        // patch for nema17 pilot
+        translate([BASE_X/2-13, BASE_Y/2, NEMA_DIM/2+BASE_THICK])
+        rotate([0, 90, 0]) cylinder(r=NEMA_PILOT_DIA/2+.5, h=10, center=true);
     }
 }
 
@@ -278,9 +283,9 @@ module base() {
         translate([BASE_X/2, BASE_Y/2, BASE_THICK/2])
         for (i=[-1,1]) {
             translate([50/2*i, 0, 0]) {
-                cylinder(r=M5_DIA/2, h=BASE_THICK+2, center=true);
+                cylinder(r=M5_DIA/2, h=BASE_THICK+2, center=true, $fn=16);
                 translate([0, 0, BASE_THICK/2-METRIC_NUT_THICKNESS[5]])
-                rotate([0, 0, 60/2]) nutHole(5, tolerance=.1);
+                rotate([0, 0, 60/2]) scale([1,1,2]) nutHole(4, tolerance=.1);
                 // cylinder(r=M5_DIA/2+3, h=BASE_THICK, center=true);
             }
         }
