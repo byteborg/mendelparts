@@ -1,4 +1,4 @@
-// byteborg's direct drive extruder 0.1
+// byteborg's direct drive extruder 0.2
 // License: CC NC-BY-SA 3.0
 // "parts that don't exist can't break"
 
@@ -52,6 +52,7 @@ q=.001;
 %ruler();
 main();
 translate([BASE_X+S_ROUND, -S_ROUND, 0]) rotate([0, -90, -60-90]) pressure();
+translate([20, -20, 0]) rotate([0, 0, -45])  bearing_clip();
 
 // pressure for visualization
 %translate([BASE_X/2-P_X/2, NEMA_DIM/2+NEMA_BOLT_DIST/2, NEMA_DIM/2+BASE_THICK+NEMA_BOLT_DIST/2]) pressure(1);
@@ -127,7 +128,7 @@ module shape_z() {
 module motor_mount() {
     difference() {
         translate([MOUNT_THICK/2, 0, -NEMA_DIM/2+NEMA_DIM/4.5/2])
-        cube(size=[MOUNT_THICK, NEMA_DIM, NEMA_DIM/4.5], center=true);
+            cube(size=[MOUNT_THICK, NEMA_DIM, NEMA_DIM/4.5], center=true);
         // union() {
         //     //translate([20, NEMA_DIM/2, NEMA_DIM/2])
         //     rotate([0, 90, 0])
@@ -156,6 +157,7 @@ module motor_mount() {
         }
     }
 }
+
 
 module pressure() {
     // %translate([P_X, 0, 0]) {
@@ -264,6 +266,7 @@ module base() {
                     // bearing
                     translate([FEED_PLATE_X/2+1, -FEED_OFFSET, NEMA_DIM/2]) rotate([0, 90, 0])
                     hull() 625zz(.3);
+
                     // cutaway = half - hobbed bolt r
                     translate([0, 0, NEMA_DIM-10/2]) cube(size=[FEED_PLATE_X+q, FEED_PLATE_X+q, NEMA_DIM], center=true);
                     // motor mount screws, fugly hack
@@ -292,6 +295,30 @@ module base() {
             }
         }
     } // diff
+}
+
+%translate([FEED_PLATE_X+BASE_X/2, BASE_Y/2, BASE_THICK+NEMA_DIM/2]) rotate([0, 90, 0]) bearing_clip();
+
+module bearing_clip() {
+    difference() {
+        hull() {
+            linear_extrude(height=4){
+                circle(r=24/2, $fn=96);
+                for (m=[1, -1]) {
+                    translate([m*NEMA_BOLT_DIST/2, m*NEMA_BOLT_DIST/2, 0]) {
+                        circle(r=11/2, $fn=32);
+                    }
+                }
+            }
+        }
+        cylinder(r=12/2, h=10, center=true, $fn=64);
+        for (m=[1, -1]) {
+            translate([m*NEMA_BOLT_DIST/2, m*NEMA_BOLT_DIST/2, 0]) {
+                cylinder(r=NEMA_BOLT_DIA/2, h=150, center=true, $fn=8);
+                translate([0, 0, 4]) cylinder(r=7/2, h=4, center=true, $fn=32);
+            }
+        }
+    }
 }
 
 module stepper() {
