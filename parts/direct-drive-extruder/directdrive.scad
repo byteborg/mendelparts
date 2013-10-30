@@ -1,6 +1,11 @@
-// byteborg's direct drive extruder 0.2
+// byteborg's direct drive extruder 0.3
+// Copyright Karsten W. Rohrbach
 // License: CC NC-BY-SA 3.0
 // "parts that don't exist can't break"
+
+// v0.1 initial
+// v0.2 add bearing plate
+// v0.3 add block for fasteners, more beauty
 
 include <MCAD/constants.scad>
 include <MCAD/motors.scad>
@@ -51,8 +56,8 @@ q=.001;
 // plate
 %ruler();
 main();
-translate([BASE_X+S_ROUND, -S_ROUND, 0]) rotate([0, -90, -60-90]) pressure();
-translate([20, -20, 0]) rotate([0, 0, -45])  bearing_clip();
+// translate([BASE_X+S_ROUND, -S_ROUND, 0]) rotate([0, -90, -60-90]) pressure();
+// translate([20, -20, 0]) rotate([0, 0, -45])  bearing_clip();
 
 // pressure for visualization
 %translate([BASE_X/2-P_X/2, NEMA_DIM/2+NEMA_BOLT_DIST/2, NEMA_DIM/2+BASE_THICK+NEMA_BOLT_DIST/2]) pressure(1);
@@ -83,6 +88,9 @@ module main() {
         translate([BASE_X/2-13, BASE_Y/2, NEMA_DIM/2+BASE_THICK])
         rotate([0, 90, 0]) cylinder(r=NEMA_PILOT_DIA/2+.5, h=10, center=true);
     }
+    // FIXME: hard patch to seal off filament canal for bridging
+    translate([BASE_X/2, BASE_Y/2+FEED_OFFSET, 20.15002])
+        #cylinder(r=(3+2)/2, h=.3, center=true);
 }
 
 
@@ -96,7 +104,7 @@ module shape_x() {
             mirror([0, i, 0]) {
                 translate([0, -NEMA_BOLT_DIST/2, NEMA_BOLT_DIST/2]) {
                     rotate([0, 90, 0])
-                    cylinder(r=S_ROUND/2, h=200, center=true, $fn=16);
+                    cylinder(r=S_ROUND/2, h=200, center=true, $fn=64);
                     translate([0, 10, -10+S_ROUND/2]) cube(size=[200, 20, 20], center=true);
                     translate([0, 10-S_ROUND/2, -100]) cube(size=[200, 20, 200], center=true);
                 }
@@ -113,7 +121,7 @@ module shape_z() {
         linear_extrude(height=300, center=true)
         minkowski() {
             square([BASE_X-S_ROUND, BASE_Y-S_ROUND], center=true);
-            circle(r=S_ROUND/2, center=true, $fn=16);
+            circle(r=S_ROUND/2, center=true, $fn=64);
         }
         // hull() {
         //     for(i=[-1,1]) {
@@ -152,7 +160,7 @@ module motor_mount() {
         // mounting holes
         for (x=[-1, 1]) for (y=[-1, 1]) {
             translate([0, NEMA_BOLT_DIST/2*x, NEMA_BOLT_DIST/2*y])
-            rotate([0, 90, 0])
+            rotate([0, 90, 0]) rotate([0, 0, 45/2])
             cylinder(r=NEMA_BOLT_DIA/2, h=50, center=true, $fn=8);
         }
     }
@@ -234,6 +242,9 @@ module base() {
                         // feed base
                         translate([0, 0, FEED_BASE_Z/2-q])
                         cylinder(r1=FEED_BASE_DIA/2, r2=FEED_PLATE_X/2, h=FEED_BASE_Z, center=true);
+                        // bolt force retainer block
+                        translate([-10+MOUNT_THICK/2+(FEED_PLATE_X+MOUNT_THICK)/2, -FEED_OFFSET, NEMA_DIM/4.5/2])
+                        cube(size=[FEED_PLATE_X+MOUNT_THICK, BASE_Y, NEMA_DIM/4.5+q], center=true);
                         hull() {
                             // bearing block
                             // translate([FEED_PLATE_X/2+BB_Y/2, -FEED_OFFSET, BB_Z/2])
@@ -259,7 +270,7 @@ module base() {
                     }
                     // space for pressure side
                     translate([-(7.7+3/2)/2, FEED_PLATE_X/2+6/2+3/2-0, NEMA_DIM/2]) rotate([0, 90, 0])
-                    hull() 608zz(3);
+                    hull() 608zz(4);
                     translate([-P_X/2, -FEED_OFFSET+NEMA_BOLT_DIST/2, NEMA_DIM/2+NEMA_BOLT_DIST/2])
                     scale(1.065)
                     hull()pressure();
@@ -273,7 +284,7 @@ module base() {
                     translate([0, -FEED_OFFSET, NEMA_DIM/2])
                     for (x=[-1, 1]) for (y=[-1, 1]) {
                         translate([0, NEMA_BOLT_DIST/2*x, NEMA_BOLT_DIST/2*y])
-                        rotate([0, 90, 0])
+                        rotate([0, 90, 0]) rotate([0, 0, 45/2])
                         cylinder(r=NEMA_BOLT_DIA/2, h=150, center=true, $fn=8);
                     }
                     // spring hole -- FIXME: placed pseudo-manually
@@ -314,7 +325,7 @@ module bearing_clip() {
         cylinder(r=12/2, h=10, center=true, $fn=64);
         for (m=[1, -1]) {
             translate([m*NEMA_BOLT_DIST/2, m*NEMA_BOLT_DIST/2, 0]) {
-                cylinder(r=NEMA_BOLT_DIA/2, h=150, center=true, $fn=8);
+                cylinder(r=NEMA_BOLT_DIA/2, h=150, center=true, $fn=32);
                 translate([0, 0, 4]) cylinder(r=7/2, h=4, center=true, $fn=32);
             }
         }
@@ -358,16 +369,17 @@ module peek_reprapsource_holes ()
     wade_block_depth = BASE_Y;
 
     // Recess in base
-    translate([0,0,-1])
-    cylinder(r=extruder_recess_d/2,h=extruder_recess_h+1);
+    // FIXME: hard patch for stoffel hotend
+    translate([0,0,-12])
+    cylinder(r=extruder_recess_d/2,h=extruder_recess_h+1, $fn=96);
 
     // Mounting holes to affix the extruder into the recess.
     translate([5,0,min(extruder_recess_h/2, base_thickness-2)])
     rotate([-90,0,0])
-    cylinder(r=m3_diameter/2-0.5,/*tight*/,h=wade_block_depth+2,center=true);
+    cylinder(r=m3_diameter/2-0.4,/*tight*/,h=wade_block_depth+2,center=true, $fn=64);
     translate([-5,0,min(extruder_recess_h/2, base_thickness-2)])
     rotate([-90,0,0])
-    cylinder(r=m3_diameter/2-0.5,/*tight*/,h=wade_block_depth+2,center=true);
+    cylinder(r=m3_diameter/2-0.4,/*tight*/,h=wade_block_depth+2,center=true, $fn=64);
 
     //cylinder(r=m4_diameter/2-0.5/* tight */,h=wade_block_depth+2,center=true);
 }
