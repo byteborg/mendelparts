@@ -3,13 +3,13 @@
 //
 //	General configuration settings.
 //
-//	Because this file is intended to be somewhat interchangable with 
-//		configuration.scad from prusajr's github repository, there is 
+//	Because this file is intended to be somewhat interchangable with
+//		configuration.scad from prusajr's github repository, there is
 //		more configuration in "moreConfiguration.scad".
 //
 // Edit variant to match the types of nuts and bolts you want to use in your part.
 //
-//	Edit layer_height to be greater than the height of one printed layer, 
+//	Edit layer_height to be greater than the height of one printed layer,
 //		but less than the height of two printed layers.
 //
 
@@ -46,6 +46,10 @@ m3_nut_diameter = _m3_nut_diameters[variant];
 
 m4_diameter = _m4_diameters[variant];
 m4_nut_diameter = _m4_nut_diameters[variant];
+
+m5_diameter = 5+bolt_slop;
+m5_nut_diameter = 8/cos(30)+nut_slop;
+m5_bolt_head_height = 3.2;
 
 m6_diameter = 6+bolt_slop;
 m6_nut_diameter = 10/cos(30)+nut_slop;

@@ -19,11 +19,11 @@ use <involute_gears.scad>
 // What type of bolt shall I use for the output?
 
 m5_bolt_output = 0;
-m6_bolt_output = 1;		
+m6_bolt_output = 1;
 m8_bolt_output = 2;
 hyena_output = 3;
 
-output_bolt = m8_bolt_output;
+output_bolt = m5_bolt_output; //m8_bolt_output;
 
 // What gear ratio shall I aim for?
 
@@ -59,11 +59,11 @@ output_bolt_head_height = (output_bolt == m5_bolt_output) ? m5_bolt_head_height+
 
 output_bolt_double_nut = (output_bolt == hyena_output) ? 1 : 0;
 
-output_bearing = (output_bolt == m5_bolt_output) ? undefined_m5_bearing :
+output_bearing = (output_bolt == m5_bolt_output) ? 625_bearing :
                  (output_bolt == m6_bolt_output) ? 106_bearing :
                  608_bearing;
 
-output_bearing_clearance = (output_bolt == m5_bolt_output) ? undefined_m5_bearing_clearance :
+output_bearing_clearance = (output_bolt == m5_bolt_output) ? 625_bearing_clearance :
                            (output_bolt == m6_bolt_output) ? 106_bearing_clearance :
                            608_bearing_clearance;
 
@@ -209,7 +209,7 @@ module planetary_frame()
 				}
 			}
 		}
-		
+
 		union()
 		{
 			// Ring gear.
@@ -218,7 +218,7 @@ module planetary_frame()
 			render(convexity=10) translate(ring_gear_bottom)
 			rotate([0, 0, 360/(ring_teeth*2)])
 			gear(number_of_teeth=ring_teeth, diametral_pitch=gear_pitch, hub_diameter=0, bore_diameter=0, rim_thickness=thickness, gear_thickness=thickness, clearance=0, backlash=-gear_backlash, pressure_angle=gear_pressure_angle, addendum_adjustment=gear_addendum_adjustment);
-			
+
 			// Sun shaft.
 
 			translate([0, 0, ring_gear_bottom[z]/2])
@@ -252,15 +252,15 @@ module planetary_frame()
 					translate([0, 0, planetary_frame_size[z]-4-m3_nut_thickness/2])
 					{
 						cylinder(h=m3_nut_thickness, r=m3_nut_diameter/2, $fn=6, center=true);
-					
+
 						translate([4, 0, 0])
 						cube([8, m3_nut_diameter*cos(30), m3_nut_thickness], center=true);
 					}
 
 					translate([0, 0, planetary_frame_size[z]-cover_mount_height+.6])
 					cylinder(h=6, r=m3_diameter/2, $fn=12, center=true);
-				}	
-			}	
+				}
+			}
 		}
 	}
 }
@@ -323,7 +323,7 @@ module planet_carrier()
 	{
 		translate(planet_carrier_center)
 		cylinder(h=planet_carrier_height, r=planet_carrier_radius, $fn=40, center=true);
-	
+
 		for(i=[0:num_planets-1]) assign(a1=i*floor(360/num_planets/planet_angle)*planet_angle+planet_offset)
 		{
 			rotate([0, 0, a1])
@@ -354,7 +354,7 @@ module planet_carrier()
 				}
 			}
 		}
-		
+
 		translate(planet_carrier_sun_shaft_center-[0, 0, .05])
 		cylinder(h=planet_carrier_sun_shaft_height+.1, r=planet_carrier_sun_shaft_radius, $fn=20, center=true);
 
@@ -456,7 +456,7 @@ module cover(print_orientation=1)
 			translate([motor_mount_hole_spacing/2, motor_mount_hole_spacing/2, (cover_bolt_z0+cover_bolt_z1)/2-layer_height])
 			cylinder(h=cover_bolt_z1-cover_bolt_z0, r=m3_diameter/2, $fn=12, center=true);
 
-			
+
 			translate([motor_mount_hole_spacing/2, motor_mount_hole_spacing/2, (cover_bolt_z1+cover_bolt_z2)/2+.05])
 			cylinder(h=cover_bolt_z2-cover_bolt_z1+.1, r=m3_bolt_head_diameter/2, $fn=12, center=true);
 		}
@@ -484,7 +484,7 @@ module planetary_plate()
 	{
 		translate([-50, 40, 0])
 		upper_planet_carrier();
-	
+
 		translate([-45, 0, 0])
 		cover();
 	}

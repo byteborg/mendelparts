@@ -38,6 +38,9 @@ bearing_flange_diameter = 2;
 bearing_flange_width = 3;
 bearing_rod_diameter = 4;
 
+625_bearing = [5, 16, 16, 0, 5];
+625_bearing_clearance = [0.4, 0.4, 0.4, 0, 0];
+
 608_bearing = [7, 22, 22, 0, 8];
 608_bearing_clearance = [0.4, 0.4, 0.4, 0, 0];
 
